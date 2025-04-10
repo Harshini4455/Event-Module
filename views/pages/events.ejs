@@ -1,0 +1,131 @@
+<!-- views/pages/events.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('../partials/head', { title: `${currentCategory} Events | College Events` }) %>
+</head>
+
+<body>
+  <%- include('../partials/header') %>
+
+    <main class="events-page">
+      <!-- Hero Banner -->
+      <section class="events-hero"
+        style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/events-banner.jpg')">
+        <div class="container">
+          <div class="hero-content">
+            <h1 class="hero-title">
+              <%= currentCategory %> Events
+            </h1>
+            <p class="hero-subtitle">Explore our <%= currentCategory.toLowerCase() %> events and activities</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Events Filter -->
+      <section class="events-filter">
+        <div class="container">
+          <div class="filter-container">
+            <div class="filter-tabs">
+              <a href="/events" class="filter-tab <%= currentCategory === 'All' ? 'active' : '' %>">All Events</a>
+              <a href="/events?category=technical"
+                class="filter-tab <%= currentCategory === 'Technical' ? 'active' : '' %>">Technical</a>
+              <a href="/events?category=cultural"
+                class="filter-tab <%= currentCategory === 'Cultural' ? 'active' : '' %>">Cultural</a>
+              <a href="/events?category=sports"
+                class="filter-tab <%= currentCategory === 'Sports' ? 'active' : '' %>">Sports</a>
+              <a href="/events?category=workshop"
+                class="filter-tab <%= currentCategory === 'Workshop' ? 'active' : '' %>">Workshops</a>
+            </div>
+            <div class="search-box">
+              <input type="text" placeholder="Search events..." class="search-input">
+              <button class="search-button"><i class="fas fa-search"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="events-listing">
+        <div class="container">
+          <% if (events.length> 0) { %>
+            <div class="events-grid">
+              <% events.forEach(event=> { %>
+                <div class="event-card">
+                  <div class="event-image">
+                    <%
+                      // Safely get the image path
+                      const eventImage = event.mainImage || event.images?.[0] || '/images/default-event.jpg';
+                      // Ensure proper path formatting
+                      const displayImage = eventImage.startsWith('uploads/') 
+                                         ? `/${eventImage}`  // Add leading slash if needed
+                                         : eventImage;
+                    %>
+                    <img src="<%= displayImage %>" 
+                         alt="<%= event.title %>"
+                         onerror="this.src='/images/default-event.jpg'">
+                    <span class="event-category <%= event.category.toLowerCase() %>">
+                      <%= event.category %>
+                    </span>
+                    <% if (event.featured) { %>
+                      <span class="featured-badge">Featured</span>
+                    <% } %>
+                    <% if (event.images?.length > 1) { %>
+                      <span class="image-count">
+                        <i class="fas fa-images"></i> <%= event.images.length %>
+                      </span>
+                    <% } %>
+                  </div>
+                  <div class="event-content">
+                    <div class="event-meta">
+                      <span class="event-date"><i class="far fa-calendar-alt"></i>
+                        <%= new Date(event.date).toLocaleDateString('en-US', { month: 'short' , day: 'numeric' ,
+                          year: 'numeric' }) %>
+                      </span>
+                      <span class="event-location"><i class="fas fa-map-marker-alt"></i> College Campus</span>
+                    </div>
+                    <h3 class="event-title">
+                      <%= event.title %>
+                    </h3>
+                    <p class="event-excerpt">
+                      <%= event.description.substring(0, 120) %>...
+                    </p>
+                    <div class="event-footer">
+                      <a href="/events/<%= event.id %>" class="event-button">
+                        View Details <i class="fas fa-arrow-right"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <% }); %>
+            </div>
+            <% } else { %>
+              <div class="no-events">
+                <img src="/images/no-events.svg" alt="No events found" class="no-events-image">
+                <h3>No <%= currentCategory.toLowerCase() %> events found</h3>
+                <p>Check back later or browse other categories</p>
+                <a href="/events" class="btn">View All Events</a>
+              </div>
+              <% } %>
+        </div>
+      </section>
+
+      <!-- Pagination (optional) -->
+      <section class="events-pagination">
+        <div class="container">
+          <div class="pagination">
+            <a href="#" class="page-link disabled"><i class="fas fa-chevron-left"></i></a>
+            <a href="#" class="page-link active">1</a>
+            <a href="#" class="page-link">2</a>
+            <a href="#" class="page-link">3</a>
+            <a href="#" class="page-link"><i class="fas fa-chevron-right"></i></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+      <script src="/js/events.js"></script>
+</body>
+
+</html>

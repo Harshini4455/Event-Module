@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head', { title }) %>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="events-page">
+        <section class="page-header">
+            <div class="container">
+                <h1><%= currentCategory %> Events</h1>
+                <p>Browse through our collection of <%= currentCategory.toLowerCase() %> events</p>
+            </div>
+        </section>
+
+        <section class="events-section">
+            <div class="container">
+                <div class="category-filter">
+                    <a href="/events" class="<%= currentCategory === 'All' ? 'active' : '' %>">All Events</a>
+                    <a href="/events?category=technical" class="<%= currentCategory === 'Technical' ? 'active' : '' %>">Technical</a>
+                    <a href="/events?category=cultural" class="<%= currentCategory === 'Cultural' ? 'active' : '' %>">Cultural</a>
+                    <a href="/events?category=sports" class="<%= currentCategory === 'Sports' ? 'active' : '' %>">Sports</a>
+                    <a href="/events?category=workshop" class="<%= currentCategory === 'Workshop' ? 'active' : '' %>">Workshops</a>
+                </div>
+
+                <div class="events-grid">
+                    <% if (events.length > 0) { %>
+                        <% events.forEach(event => { %>
+                            <div class="event-card">
+                                <img src="<%= event.image %>" alt="<%= event.title %>">
+                                <div class="event-info">
+                                    <span class="category <%= event.category.toLowerCase() %>"><%= event.category %></span>
+                                    <h3><%= event.title %></h3>
+                                    <p><%= event.description.substring(0, 100) %>...</p>
+                                    <div class="event-meta">
+                                        <span><i class="far fa-calendar-alt"></i> <%= new Date(event.date).toLocaleDateString() %></span>
+                                        <a href="/events/<%= event.id %>" class="btn btn-small">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="no-events">
+                            <h3>No events found in this category</h3>
+                            <p>Check back later or browse other categories</p>
+                            <a href="/events" class="btn">View All Events</a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+    <script src="/js/main.js"></script>
+</body>
+</html>

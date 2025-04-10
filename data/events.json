@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "title": "dfgthjk",
+    "category": "Technical",
+    "date": "2025-02-25",
+    "description": "sdxfcgvhbjnkm",
+    "image": "/uploads/event-1743613502419-712960249.jpg",
+    "featured": true,
+    "images": [
+      "/uploads/event-1743613502419-712960249.jpg"
+    ],
+    "mainImage": "/uploads/event-1743613502419-712960249.jpg"
+  },
+  {
+    "id": 1743656032887,
+    "title": "somethingCurious",
+    "category": "Cultural",
+    "date": "2025-02-25",
+    "description": "dxcfgbjmklfcgvhjk",
+    "images": [
+      "/uploads/event-1743656032861-831693091.jpg"
+    ],
+    "mainImage": "/uploads/event-1743656032861-831693091.jpg",
+    "featured": true,
+    "createdAt": "2025-04-03T04:53:52.887Z"
+  },
+  {
+    "id": 1743656803245,
+    "title": "Nothing",
+    "category": "Sports",
+    "date": "2024-02-05",
+    "description": "dxcfgbhjmk",
+    "images": [
+      "/uploads/event-1743656803235-992504678.jpg"
+    ],
+    "mainImage": "/uploads/event-1743656803235-992504678.jpg",
+    "featured": false,
+    "createdAt": "2025-04-03T05:06:43.245Z"
+  },
+  {
+    "id": 1743665660141,
+    "title": "somethingCurious",
+    "category": "Cultural",
+    "date": "0004-02-01",
+    "description": "esgfh",
+    "images": [
+      "/uploads/event-1743665660131-820691157.jpg"
+    ],
+    "mainImage": "/uploads/event-1743665660131-820691157.jpg",
+    "featured": false,
+    "createdAt": "2025-04-03T07:34:20.141Z",
+    "image": "/uploads/event-1743665701145-203709523.jpg"
+  },
+  {
+    "id": 1743672697127,
+    "title": "Nothing",
+    "category": "Sports",
+    "date": "2025-02-25",
+    "description": "sdfghufcghj",
+    "images": [
+      "/uploads/event-1743672697083-655733792.jpg"
+    ],
+    "mainImage": "/uploads/event-1743672697083-655733792.jpg",
+    "featured": false,
+    "createdAt": "2025-04-03T09:31:37.127Z"
+  }
+]

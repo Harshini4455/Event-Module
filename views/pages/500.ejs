@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head', { title }) %>
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            background-color: var(--dark);
+        }
+        .error-code {
+            font-size: 6rem;
+            font-weight: 700;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        .error-description {
+            max-width: 600px;
+            margin-bottom: 40px;
+            color: var(--dark-light);
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="error-container">
+        <div class="error-code">500</div>
+        <h1 class="error-message">Server Error</h1>
+        <p class="error-description">
+            Something went wrong on our end. We're working to fix the issue. Please try again later.
+        </p>
+        <a href="/" class="btn btn-primary">Go to Homepage</a>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head', { title }) %>
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <main>
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>Discover College Events</h1>
+                    <p>Explore the vibrant life of our campus through our events gallery</p>
+
+
+                    <a href="/events" class="front-btn btn">View All Events</a>
+                </div>
+            </section>
+
+            <!-- views/pages/index.ejs -->
+            <section class="featured-events">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Featured Events</h2>
+                        <a href="/events" class="view-all">View All Events <i class="fas fa-arrow-right"></i></a>
+                    </div>
+
+                    <div class="events-grid">
+                        <% featuredEvents.forEach(event=> { %>
+                            <div class="event-card">
+                                <div class="event-image">
+                                    <img src="<%= event.mainImage || event.images[0] %>" alt="<%= event.title %>">
+                                    <span class="event-category <%= event.category.toLowerCase() %>">
+                                        <%= event.category %>
+                                    </span>
+                                    <% if (event.featured) { %>
+                                        <span class="featured-badge">Featured</span>
+                                        <% } %>
+                                            <% if (event.images && event.images.length> 1) { %>
+                                                <span class="image-count">
+                                                    <i class="fas fa-images"></i>
+                                                    <%= event.images.length %>
+                                                </span>
+                                                <% } %>
+                                </div>
+
+
+                                <div class="event-content">
+                                    <div class="event-date">
+                                        <i class="far fa-calendar-alt"></i>
+                                        <%= new Date(event.date).toLocaleDateString('en-US', { month: 'short' ,
+                                            day: 'numeric' , year: 'numeric' }) %>
+                                    </div>
+                                    <h3 class="event-title">
+                                        <%= event.title %>
+                                    </h3>
+                                    <p class="event-excerpt">
+                                        <%= event.description.substring(0, 100) %>...
+                                    </p>
+                                    <div class="event-footer">
+                                        <a href="/events/<%= event.id %>" class="event-button">
+                                            View Details <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }); %>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <%- include('../partials/footer') %>
+            <script src="/js/main.js"></script>
+</body>
+
+</html>

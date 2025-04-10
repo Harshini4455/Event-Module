@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head', { title }) %>
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <main class="event-details-page">
+            <section class="event-hero"
+                style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('<%= event.image %>')">
+                <div class="container">
+                    <div class="event-hero-content">
+                        <span class="category <%= event.category.toLowerCase() %>">
+                            <%= event.category %>
+                        </span>
+                        <h1>
+                            <%= event.title %>
+                        </h1>
+                        <div class="event-meta">
+                            <span><i class="far fa-calendar-alt"></i>
+                                <%= new Date(event.date).toLocaleDateString('en-US', { weekday: 'long' , year: 'numeric'
+                                    , month: 'long' , day: 'numeric' }) %>
+                            </span>
+                            <span><i class="fas fa-map-marker-alt"></i> College Auditorium</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="event-content">
+                <div class="container">
+                    <div class="event-description">
+                        <h2>About the Event</h2>
+                        <p>
+                            <%= event.description %>
+                        </p>
+
+                        <div class="event-schedule">
+                            <h3>Event Schedule</h3>
+                            <ul>
+                                <li>
+                                    <span class="time">10:00 AM</span>
+                                    <span class="activity">Registration</span>
+                                </li>
+                                <li>
+                                    <span class="time">10:30 AM</span>
+                                    <span class="activity">Inauguration</span>
+                                </li>
+                                <li>
+                                    <span class="time">11:00 AM</span>
+                                    <span class="activity">Main Event</span>
+                                </li>
+                                <li>
+                                    <span class="time">1:00 PM</span>
+                                    <span class="activity">Lunch Break</span>
+                                </li>
+                                <li>
+                                    <span class="time">2:00 PM</span>
+                                    <span class="activity">Competitions</span>
+                                </li>
+                                <li>
+                                    <span class="time">4:00 PM</span>
+                                    <span class="activity">Prize Distribution</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="event-sidebar">
+                        <div class="sidebar-card">
+                            <h3>Event Details</h3>
+                            <div class="detail-item">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>
+                                    <%= new Date(event.date).toLocaleDateString('en-US', { weekday: 'long' ,
+                                        year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="far fa-clock"></i>
+                                <span>10:00 AM - 5:00 PM</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>College Auditorium</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>Open to all students</span>
+                            </div>
+                        </div>
+
+                        <% if (relatedEvents.length> 0) { %>
+                            <div class="sidebar-card">
+                                <h3>Related Events</h3>
+                                <% relatedEvents.forEach(relatedEvent=> { %>
+                                    <div class="related-event">
+                                        <img src="<%= relatedEvent.image %>" alt="<%= relatedEvent.title %>">
+                                        <div class="related-event-info">
+                                            <h4>
+                                                <%= relatedEvent.title %>
+                                            </h4>
+                                            <span class="date">
+                                                <%= new Date(relatedEvent.date).toLocaleDateString() %>
+                                            </span>
+                                            <a href="/events/<%= relatedEvent.id %>" class="btn btn-small">View</a>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                            </div>
+                            <% } %>
+                    </div>
+                </div>
+            </section>
+
+            <section class="event-gallery">
+                <div class="container">
+                  <h2>Event Gallery</h2>
+                  <div class="gallery-grid">
+                    <% if (event.images && event.images.length) { %>
+                      <% event.images.forEach((image, index) => { %>
+                        <div class="gallery-item <%= index === 0 ? 'main-image' : '' %>">
+                          <img src="<%= image %>" alt="<%= event.title %> - Image <%= index + 1 %>">
+                        </div>
+                      <% }); %>
+                    <% } else { %>
+                      <div class="no-images">
+                        <i class="fas fa-image"></i>
+                        <p>No images available for this event</p>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </section>
+        </main>
+
+        <%- include('../partials/footer') %>
+            <script src="/js/main.js"></script>
+</body>
+
+</html>
