@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-
+const eventController = require('../controllers/eventController');
 // Sample event data - in a real app, this would come from a database
 let events = [
     {
@@ -11,28 +11,32 @@ let events = [
         category: "Technical",
         date: "2023-11-15",
         description: "Annual technical symposium with competitions and workshops.",
-        image: "/images/tech-event.jpg",
-        featured: true
+        images: [
+          "/uploads/event-1743613502419-712960249.jpg"
+        ],
+        mainImage: "/uploads/event-1743613502419-712960249.jpg"
     },
     // Add more sample events...
 ];
 
-
-router.get('/', (req, res) => {
-    try {
-      const eventsPath = path.join(__dirname, '../data/events.json');
-      const events = JSON.parse(fs.readFileSync(eventsPath));
+// Public routes
+router.get('/', eventController.getAllEvents);
+router.get('/:id', eventController.getEventById);
+// router.get('/', (req, res) => {
+//     try {
+//       const eventsPath = path.join(__dirname, '../data/events.json');
+//       const events = JSON.parse(fs.readFileSync(eventsPath));
       
-      res.render('pages/index', {
-        title: 'College Event Gallery',
-        events,
-        featuredEvents: events.filter(event => event.featured)
-      });
-    } catch (err) {
-      console.error('Error reading events:', err);
-      res.status(500).render('pages/500', { title: 'Server Error' });
-    }
-  });
+//       res.render('pages/index', {
+//         title: 'College Event Gallery',
+//         events,
+//         featuredEvents: events.filter(event => event.featured)
+//       });
+//     } catch (err) {
+//       console.error('Error reading events:', err);
+//       res.status(500).render('pages/500', { title: 'Server Error' });
+//     }
+//   });
 
   router.get('/events', (req, res) => {
     try {

@@ -57,10 +57,13 @@
                       // Safely get the image path
                       const eventImage = event.mainImage || event.images?.[0] || '/images/default-event.jpg';
                       // Ensure proper path formatting
-                      const displayImage = eventImage.startsWith('uploads/') 
-                                         ? `/${eventImage}`  // Add leading slash if needed
-                                         : eventImage;
-                    %>
+                      // const displayImage = eventImage.startsWith('uploads/') ? `/${eventImage}` : eventImage;
+                      const displayImage = eventImage.startsWith('/') 
+                        ? eventImage 
+                        : eventImage.startsWith('uploads/') 
+                          ? `/${eventImage}` 
+                          : `/uploads/${eventImage}`;
+                          %>
                     <img src="<%= displayImage %>" 
                          alt="<%= event.title %>"
                          onerror="this.src='/images/default-event.jpg'">

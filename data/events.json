@@ -1,68 +1,97 @@
 [
   {
     "id": 1,
-    "title": "dfgthjk",
+    "title": "Tech Symposium",
     "category": "Technical",
-    "date": "2025-02-25",
-    "description": "sdxfcgvhbjnkm",
-    "image": "/uploads/event-1743613502419-712960249.jpg",
-    "featured": true,
+    "date": "2023-11-15",
+    "description": "Annual technical symposium with competitions and workshops.",
     "images": [
       "/uploads/event-1743613502419-712960249.jpg"
     ],
-    "mainImage": "/uploads/event-1743613502419-712960249.jpg"
+    "mainImage": "/uploads/event-1743613502419-712960249.jpg",
+    "featured": false
   },
   {
-    "id": 1743656032887,
-    "title": "somethingCurious",
+    "id": 2,
+    "title": "Cultural Fiesta",
     "category": "Cultural",
-    "date": "2025-02-25",
-    "description": "dxcfgbjmklfcgvhjk",
+    "date": "2024-01-20",
+    "description": "A vibrant celebration of music, dance, and drama featuring student performances.",
     "images": [
-      "/uploads/event-1743656032861-831693091.jpg"
+      "/uploads/event-1744286427102-616124623.jpg"
     ],
-    "mainImage": "/uploads/event-1743656032861-831693091.jpg",
+    "mainImage": "/uploads/event-1744286427102-616124623.jpg",
     "featured": true,
-    "createdAt": "2025-04-03T04:53:52.887Z"
+    "image": "/uploads/event-1744292300809-680092947.jpg"
   },
   {
-    "id": 1743656803245,
-    "title": "Nothing",
-    "category": "Sports",
-    "date": "2024-02-05",
-    "description": "dxcfgbhjmk",
+    "id": 3,
+    "title": "Hackathon 2.0",
+    "category": "Technical",
+    "date": "2024-03-05",
+    "description": "48-hour coding marathon focused on AI and sustainability solutions.",
     "images": [
-      "/uploads/event-1743656803235-992504678.jpg"
+      "/uploads/event-1744286457762-209605905.jpg"
     ],
-    "mainImage": "/uploads/event-1743656803235-992504678.jpg",
-    "featured": false,
-    "createdAt": "2025-04-03T05:06:43.245Z"
+    "mainImage": "/uploads/event-1744286457762-209605905.jpg",
+    "featured": false
   },
   {
-    "id": 1743665660141,
-    "title": "somethingCurious",
+    "id": 4,
+    "title": "Sports Meet",
+    "category": "Sports",
+    "date": "2024-02-10",
+    "description": "Inter-college sports competition with events in athletics, football, and cricket.",
+    "images": [
+      "/uploads/event-1743613540954-648391285.jpg"
+    ],
+    "mainImage": "/uploads/event-1743613540954-648391285.jpg",
+    "featured": true,
+    "image": "/uploads/event-1744392394772-71168156.jpg"
+  },
+  {
+    "id": 5,
+    "title": "Alumni Meet 2024",
     "category": "Cultural",
-    "date": "0004-02-01",
-    "description": "esgfh",
+    "date": "2024-04-22",
+    "description": "Reunion event bringing together past graduates and current students for networking and celebration.",
     "images": [
-      "/uploads/event-1743665660131-820691157.jpg"
+      "/uploads/event-1744286457762-209605905.jpg"
     ],
-    "mainImage": "/uploads/event-1743665660131-820691157.jpg",
+    "mainImage": "/uploads/event-1744286457762-209605905.jpg",
     "featured": false,
-    "createdAt": "2025-04-03T07:34:20.141Z",
-    "image": "/uploads/event-1743665701145-203709523.jpg"
+    "image": "/uploads/event-1744380928937-738423986.jpg"
   },
   {
-    "id": 1743672697127,
-    "title": "Nothing",
-    "category": "Sports",
-    "date": "2025-02-25",
-    "description": "sdfghufcghj",
+    "id": 1744380853617,
+    "title": "something",
+    "category": "Technical",
+    "date": "2525-12-20",
+    "description": "dsfghjnkm,l./",
     "images": [
-      "/uploads/event-1743672697083-655733792.jpg"
+      "/uploads/event-1744380853594-4276815.jpg",
+      "/uploads/event-1744380853602-288092684.jpg",
+      "/uploads/event-1744380853606-545827241.jpg",
+      "/uploads/event-1744380853607-759986282.jpg"
     ],
-    "mainImage": "/uploads/event-1743672697083-655733792.jpg",
+    "mainImage": "/uploads/event-1744380853594-4276815.jpg",
     "featured": false,
-    "createdAt": "2025-04-03T09:31:37.127Z"
+    "createdAt": "2025-04-11T14:14:13.617Z"
+  },
+  {
+    "id": 1744392168169,
+    "title": "something",
+    "category": "Cultural",
+    "date": "2024-08-05",
+    "description": "dwghj",
+    "images": [
+      "/uploads/event-1744392168155-741624204.jpg",
+      "/uploads/event-1744392168160-617403486.jpg",
+      "/uploads/event-1744392168161-258171485.jpg",
+      "/uploads/event-1744392168162-6992205.jpg"
+    ],
+    "mainImage": "/uploads/event-1744392168155-741624204.jpg",
+    "featured": false,
+    "createdAt": "2025-04-11T17:22:48.169Z"
   }
 ]

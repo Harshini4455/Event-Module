@@ -7,6 +7,31 @@ const multer = require('multer');
 const upload = require('../config/multer');
 const { getEvents, saveEvents, generateId } = require('../utils/helpers');
 require('dotenv').config();
+const eventController = require('../controllers/eventController');
+const { eventMediaUpload  } = require('../utils/fileUpload');
+const { ensureAdmin } = require('../middleware/auth');
+
+// Event CRUD Routes
+// router.get('/new', ensureAdmin, eventController.renderEventForm);
+// router.post('/', ensureAdmin, eventController.createEvent);
+
+// Media Management Routes
+// router.get('/:id/media', ensureAdmin, eventController.renderMediaManager);
+// router.post('/:id/media', 
+//   ensureAdmin,
+//   uploadEventMedia.array('media', 30),
+//   eventController.addEventMedia
+// );
+
+// Event Management Routes
+router.get('/events', ensureAdmin, eventController.listEvents);
+router.get('/events/new', ensureAdmin, eventController.showCreateForm);
+router.post('/events', ensureAdmin, eventController.createEvent);
+
+// Event Media Management Routes
+router.get('/events/:id/media', ensureAdmin, eventController.showMediaManager);
+router.post('/events/:id/media', ensureAdmin, eventMediaUpload, eventController.uploadMedia);
+router.delete('/events/:id/media/:mediaId', ensureAdmin, eventController.deleteMedia);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -106,151 +131,172 @@ if (!fs.existsSync(uploadDir)) {
 const { readEventsData, saveEventsData } = require('../helpers/eventHelpers');
 
 router.post('/events', isAuthenticated, upload.array('eventImage', 5), async (req, res) => {
-  try {
-    const { title, category, date, description, featured } = req.body;
-    
-    // Handle file uploads
-    let images = [];
-    if (req.files && req.files.length > 0) {
-      images = req.files.map(file => '/uploads/' + file.filename);
-    } else {
-      images = ['/images/default-event.jpg']; // Default image
-    }
+    try {
+        const { title, category, date, description, featured } = req.body;
 
-    const newEvent = {
-      id: Date.now(),
-      title,
-      category,
-      date,
-      description: description || "No description provided",
-      images,
-      mainImage: images[0],
-      featured: featured === 'on',
-      createdAt: new Date().toISOString()
-    };
-
-    // Read and update events
-    const events = await readEventsData();
-    events.push(newEvent);
-    await saveEventsData(events);
-
-    req.session.success = `Event added with ${images.length} images!`;
-    return res.redirect('/admin/dashboard');
-
-  } catch (err) {
-    console.error('Error adding event:', err);
-    
-    // Cleanup uploaded files if error occurred
-    if (req.files?.length) {
-      req.files.forEach(file => {
-        fs.unlinkSync(path.join(uploadDir, file.filename));
-      });
-    }
-
-    req.session.error = 'Failed to add event: ' + err.message;
-    return res.redirect('/admin/events/new');
-  }
-});
-
-
-    // Edit Event Routes
-    router.get('/events/edit/:id', isAuthenticated, (req, res) => {
-        const events = require('../data/events.json');
-        const event = events.find(e => e.id === parseInt(req.params.id));
-        if (!event) return res.status(404).render('pages/404', { title: 'Event Not Found' });
-
-        res.render('admin/edit-event', {
-            title: 'Edit Event',
-            event
-        });
-    });
-
-    router.post('/events/update/:id', isAuthenticated, upload.single('eventImage'), (req, res) => {
-        let events = require('../data/events.json');
-        const eventIndex = events.findIndex(e => e.id === parseInt(req.params.id));
-
-        if (eventIndex === -1) {
-            return res.status(404).render('pages/404', { title: 'Event Not Found' });
+        // Handle file uploads
+        let images = [];
+        if (req.files && req.files.length > 0) {
+            images = req.files.map(file => '/uploads/' + file.filename);
+        } else {
+            images = ['/images/default-event.jpg']; // Default image
         }
 
-        const { title, category, date, description, featured } = req.body;
-        const updatedEvent = {
-            ...events[eventIndex],
+        const newEvent = {
+            id: Date.now(),
             title,
             category,
             date,
-            description,
-            featured: featured === 'on'
+            description: description || "No description provided",
+            images,
+            mainImage: images[0],
+            featured: featured === 'on',
+            createdAt: new Date().toISOString()
         };
 
-        if (req.file) {
-            updatedEvent.image = '/uploads/' + req.file.filename;
+        // Read and update events
+        const events = await readEventsData();
+        events.push(newEvent);
+        await saveEventsData(events);
+
+        req.session.success = `Event added with ${images.length} images!`;
+        return res.redirect('/admin/dashboard');
+
+    } catch (err) {
+        console.error('Error adding event:', err);
+
+        // Cleanup uploaded files if error occurred
+        if (req.files?.length) {
+            req.files.forEach(file => {
+                fs.unlinkSync(path.join(uploadDir, file.filename));
+            });
         }
 
-        events[eventIndex] = updatedEvent;
-        fs.writeFileSync('./data/events.json', JSON.stringify(events, null, 2));
+        req.session.error = 'Failed to add event: ' + err.message;
+        return res.redirect('/admin/events/new');
+    }
+});
 
-        res.redirect('/admin/dashboard');
+
+// Edit Event Routes
+
+
+router.get('/events/edit/:id', isAuthenticated, (req, res) => {
+    const events = require('../data/events.json');
+    const event = events.find(e => e.id === parseInt(req.params.id));
+    if (!event) return res.status(404).render('pages/404', { title: 'Event Not Found' });
+
+    res.render('admin/edit-event', {
+        title: 'Edit Event',
+        event
     });
+});
 
-    // Delete Event Route
-    router.get('/events/delete/:id', isAuthenticated, (req, res) => {
-        try {
-            // 1. Load events data
-            const eventsPath = path.join(__dirname, '../data/events.json');
-            const events = JSON.parse(fs.readFileSync(eventsPath, 'utf8'));
+router.post('/events/update/:id', isAuthenticated, upload.single('eventImage'), (req, res) => {
+    let events = require('../data/events.json');
+    const eventIndex = events.findIndex(e => e.id === parseInt(req.params.id));
+
+    if (eventIndex === -1) {
+        return res.status(404).render('pages/404', { title: 'Event Not Found' });
+    }
+
+    const { title, category, date, description, featured } = req.body;
+    const updatedEvent = {
+        ...events[eventIndex],
+        title,
+        category,
+        date,
+        description,
+        
+        featured: featured === 'on'
+    };
+
+    if (req.file) {
+        updatedEvent.image = '/uploads/' + req.file.filename;
+    }
+
+    events[eventIndex] = updatedEvent;
+    fs.writeFileSync('./data/events.json', JSON.stringify(events, null, 2));
+
+    res.redirect('/admin/dashboard');
+});
+
+// Helper function to delete image files
+const deleteImageFile = (imagePath) => {
+    if (!imagePath) return;
     
-            // 2. Find event to delete
-            const eventId = parseInt(req.params.id);
-            const eventIndex = events.findIndex(e => e.id === eventId);
-    
-            if (eventIndex === -1) {
-                console.log('Event not found');
-                return res.redirect('/admin/dashboard');
-            }
-    
-            const eventToDelete = events[eventIndex];
-    
-            // 3. Delete associated image from uploads folder
-            if (eventToDelete.imageUrl) {
-                const imagePath = path.join(__dirname, '..', 'uploads', path.basename(eventToDelete.imageUrl));
-                
-                if (fs.existsSync(imagePath)) {
-                    try {
-                        fs.unlinkSync(imagePath);
-                        console.log('Successfully deleted image:', imagePath);
-                    } catch (err) {
-                        console.error('Failed to delete image:', err);
-                    }
-                } else {
-                    console.log('Image not found at path:', imagePath);
-                }
-            }
-    
-            // 4. Update events array
-            events.splice(eventIndex, 1);
-    
-            // 5. Save changes
-            fs.writeFileSync(eventsPath, JSON.stringify(events, null, 2));
-            console.log('Event deleted successfully');
-    
-            res.redirect('/admin/dashboard');
-        } catch (err) {
-            console.error('Delete operation failed:', err);
-            res.redirect('/admin/dashboard');
+    try {
+        const fullPath = path.join(__dirname, '..', imagePath);
+        if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+            console.log('Deleted image file:', fullPath);
         }
-    });
-    // router.get('/events/delete/:id', isAuthenticated, (req, res) => {
-    //     let events = require('../data/events.json');
-    //     events = events.filter(e => e.id !== parseInt(req.params.id));
-    //     fs.writeFileSync('./data/events.json', JSON.stringify(events, null, 2));
+    } catch (err) {
+        console.error('Error deleting image file:', err);
+    }
+};
+// For deleting images during edit/delete operations
+const deleteEventImage = (imageUrl) => {
+    if (!imageUrl) return;
 
-    //     res.redirect('/admin/dashboard');
-    // });
-    router.get('/logout', (req, res) => {
-        req.session.destroy(err => {
-            if (err) console.error('Logout error:', err);
-            res.redirect('/admin/login');
-        });
+    try {
+        const filename = path.basename(imageUrl);
+        const imagePath = path.join(__dirname, '../uploads', filename);
+
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+            console.log('Deleted image:', filename);
+        }
+    } catch (err) {
+        console.error('Image deletion failed:', err);
+    }
+};
+
+// Delete Event Route
+router.get('/events/delete/:id', isAuthenticated, (req, res) => {
+    try {
+        // Load events data
+        const eventsPath = path.join(__dirname, '../data/events.json');
+        let events = JSON.parse(fs.readFileSync(eventsPath, 'utf8'));
+
+        // Find event to delete
+        const eventId = parseInt(req.params.id);
+        const eventIndex = events.findIndex(e => e.id === eventId);
+
+        if (eventIndex === -1) {
+            req.flash('error', 'Event not found');
+            return res.redirect('/admin/events');
+        }
+
+        // Delete associated images
+        const eventToDelete = events[eventIndex];
+        if (eventToDelete.eventImage) {
+            deleteImageFile(eventToDelete.eventImage);
+        }
+        
+        // Delete from database (JSON file)
+        events.splice(eventIndex, 1);
+        fs.writeFileSync(eventsPath, JSON.stringify(events, null, 2));
+
+        req.flash('success', 'Event deleted successfully');
+        res.redirect('/admin/events');
+    } catch (err) {
+        console.error('Delete error:', err);
+        req.flash('error', 'Failed to delete event');
+        res.redirect('/admin/events');
+    }
+});
+// router.get('/events/delete/:id', isAuthenticated, (req, res) => {
+//     let events = require('../data/events.json');
+//     events = events.filter(e => e.id !== parseInt(req.params.id));
+//     fs.writeFileSync('./data/events.json', JSON.stringify(events, null, 2));
+
+//     res.redirect('/admin/dashboard');
+// });
+router.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) console.error('Logout error:', err);
+        res.redirect('/admin/login');
     });
-    module.exports = router;
+});
+module.exports = router;
