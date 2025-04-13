@@ -2,7 +2,7 @@ const Event = require('../models/Event');
 const fs = require('fs');
 const path = require('path');
 
-const createEvent = async (req, res) => {
+let createEvent = async (req, res) => {
   try {
     const { title, description, date, location, category } = req.body;
     
@@ -84,7 +84,7 @@ const renderMediaManager = async (req, res) => {
   }
 };
 
-const showMediaManager = async (req, res) => {
+let showMediaManager = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
@@ -303,114 +303,43 @@ const uploadEventMedia = async (req, res) => {
   }
 };
 
+console.log(module)
 
-module.exports = {
-  listEvents: async (req, res) => {
-    try {
-      const events = await Event.find().sort({ createdAt: -1 });
-      res.render('admin/events/list', { events });
-    } catch (err) {
-      console.error(err);
-      req.flash('error', 'Failed to load events');
-      res.redirect('/admin');
-    }
-  },
 
-  showCreateForm: (req, res) => {
-    res.render('admin/events/new');
-  },
+let listEvents = async (req, res) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 });
+    res.render('admin/events/list', { events });
+  } catch (err) {
+    console.error(err);
+    req.flash('error', 'Failed to load events');
+    res.redirect('/admin');
+  }
+}
 
-  createEvent: async (req, res) => {
-    try {
-      const { title, description, date, location } = req.body;
-      const event = new Event({
-        title,
-        description,
-        date,
-        location,
-        createdBy: req.user._id
-      });
-      await event.save();
-      req.flash('success', 'Event created successfully');
-      res.redirect('/admin/events');
-    } catch (err) {
-      console.error(err);
-      req.flash('error', 'Failed to create event');
-      res.redirect('/admin/events/new');
-    }
-  },
-
-  showMediaManager: async (req, res) => {
-    try {
-      const event = await Event.findById(req.params.id);
-      if (!event) {
-        req.flash('error', 'Event not found');
-        return res.redirect('/admin/events');
+let showCreateForm = (req, res) => {
+  try {
+    // Render the event creation form view
+    res.render('events/create', {
+      title: 'Create New Event',
+      // Pass any necessary data to the view
+      categories: ['Technical', 'Cultural', 'Workshop', 'Sports'], // Example categories
+      user: req.user, // If you need user data in the form
+      messages: {
+        error: req.flash('error'),
+        success: req.flash('success')
       }
-      res.render('admin/events/media', { event });
-    } catch (err) {
-      console.error(err);
-      req.flash('error', 'Failed to load media manager');
-      res.redirect('/admin/events');
-    }
-  },
-
-  uploadMedia: async (req, res) => {
-    try {
-      const event = await Event.findById(req.params.id);
-      if (!event) {
-        req.files?.forEach(file => fs.unlinkSync(file.path));
-        req.flash('error', 'Event not found');
-        return res.redirect('/admin/events');
-      }
-
-      const mediaFiles = req.files?.map(file => ({
-        url: `/uploads/events/${file.filename}`,
-        type: file.mimetype.startsWith('image') ? 'image' : 'video'
-      })) || [];
-
-      event.media.push(...mediaFiles);
-      await event.save();
-
-      req.flash('success', 'Media uploaded successfully');
-      res.redirect(`/admin/events/${event._id}/media`);
-    } catch (err) {
-      console.error(err);
-      req.files?.forEach(file => fs.unlinkSync(file.path));
-      req.flash('error', 'Failed to upload media');
-      res.redirect(`/admin/events/${req.params.id}/media`);
-    }
-  },
-
-  deleteMedia: async (req, res) => {
-    try {
-      const event = await Event.findById(req.params.id);
-      if (!event) {
-        return res.status(404).json({ success: false, message: 'Event not found' });
-      }
-
-      const mediaItem = event.media.id(req.params.mediaId);
-      if (!mediaItem) {
-        return res.status(404).json({ success: false, message: 'Media not found' });
-      }
-
-      // Delete file from server
-      const filePath = path.join(__dirname, '../../../public', mediaItem.url);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-
-      event.media.pull(mediaItem);
-      await event.save();
-
-      res.json({ success: true, message: 'Media deleted successfully' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ success: false, message: 'Failed to delete media' });
-    }
+    });
+  } catch (err) {
+    console.error('Error rendering event creation form:', err);
+    req.flash('error', 'Failed to load event creation form');
+    res.redirect('/events');
   }
 };
+  
+
 module.exports ={
+  createEvent,
   addEventMedia,
   renderEventForm,
   renderMediaManager,
@@ -418,5 +347,10 @@ module.exports ={
   getEventById,
   updateEvent,
   deleteEvent,
-  uploadEventMedia
+  uploadEventMedia,
+  showMediaManager,
+  uploadMedia,
+  deleteMedia,
+  listEvents,
+  showCreateForm
 }

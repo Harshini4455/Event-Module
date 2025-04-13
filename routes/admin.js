@@ -1,3 +1,6 @@
+
+
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const path = require('path');
@@ -6,8 +9,9 @@ const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const upload = require('../config/multer');
 const { getEvents, saveEvents, generateId } = require('../utils/helpers');
-require('dotenv').config();
 const eventController = require('../controllers/eventController');
+const adminController = require('../controllers/adminController');
+const eventsRouter = require('./admin/events');
 const { eventMediaUpload  } = require('../utils/fileUpload');
 const { ensureAdmin } = require('../middleware/auth');
 
@@ -22,16 +26,30 @@ const { ensureAdmin } = require('../middleware/auth');
 //   uploadEventMedia.array('media', 30),
 //   eventController.addEventMedia
 // );
+console.log('Imported adminController:', adminController);
+router.get('/dashboard', 
+   
+  (req, res, next) => {
+    console.log('Middleware chain - before controller');
+    next();
+  },
+  adminController.getAdminDashboard,
+  (err, req, res, next) => {
+    console.error('Error in dashboard route:', err);
+    next(err);
+  }
+);
 
+console.log('Function exists?', typeof adminController.getAdminDashboard);
+
+// Main admin dashboard
+router.get('/', ensureAdmin, adminController.getAdminDashboard);
+
+// Mount event routes under /admin/events
+router.use('/events', eventsRouter);
 // Event Management Routes
-router.get('/events', ensureAdmin, eventController.listEvents);
-router.get('/events/new', ensureAdmin, eventController.showCreateForm);
-router.post('/events', ensureAdmin, eventController.createEvent);
 
-// Event Media Management Routes
-router.get('/events/:id/media', ensureAdmin, eventController.showMediaManager);
-router.post('/events/:id/media', ensureAdmin, eventMediaUpload, eventController.uploadMedia);
-router.delete('/events/:id/media/:mediaId', ensureAdmin, eventController.deleteMedia);
+router.get('/test', (req, res) => res.send('It works!'));
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -55,11 +73,7 @@ const fileFilter = (req, file, cb) => {
     cb(new Error('Error: Only image files are allowed!'));
 };
 
-module.exports = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB
-});
+
 
 // // Configure multer for file uploads
 // const storage = multer.diskStorage({
@@ -108,19 +122,31 @@ router.post('/login', (req, res) => {
 
 
 // Admin dashboard
-router.get('/dashboard', isAuthenticated, (req, res) => {
-    const events = getEvents();
-    res.render('admin/dashboard', {
-        title: 'Admin Dashboard',
-        events
-    });
-});
+// router.get('/dashboard', isAuthenticated, (req, res) => {
+//     const events = getEvents();
+//     res.render('admin/dashboard', {
+//         title: 'Admin Dashboard',
+//         events
+//     });
+// });
 
+// router.get('/dashboard', ensureAdmin, (req, res) => {
+//     // Temporarily put the controller logic directly here
+//     Event.find().populate('createdBy', 'username')
+//       .then(events => {
+//         res.render('admin/dashboard', { events, user: req.user });
+//       })
+//       .catch(err => {
+//         console.error(err);
+//         req.flash('error_msg', 'Server Error');
+//         res.redirect('/admin');
+//       });
+//   });
 
 // Event management routes
-router.get('/events/new', isAuthenticated, (req, res) => {
-    res.render('admin/add-event', { title: 'Add New Event' });
-});
+// router.get('/events/new', isAuthenticated, (req, res) => {
+//     res.render('admin/add-event', { title: 'Add New Event' });
+// });
 
 // Ensure upload directory exists
 const uploadDir = process.env.UPLOAD_PATH || 'public/uploads';
@@ -130,52 +156,52 @@ if (!fs.existsSync(uploadDir)) {
 
 const { readEventsData, saveEventsData } = require('../helpers/eventHelpers');
 
-router.post('/events', isAuthenticated, upload.array('eventImage', 5), async (req, res) => {
-    try {
-        const { title, category, date, description, featured } = req.body;
+// router.post('/events', isAuthenticated, upload.array('eventImage', 5), async (req, res) => {
+//     try {
+//         const { title, category, date, description, featured } = req.body;
 
-        // Handle file uploads
-        let images = [];
-        if (req.files && req.files.length > 0) {
-            images = req.files.map(file => '/uploads/' + file.filename);
-        } else {
-            images = ['/images/default-event.jpg']; // Default image
-        }
+//         // Handle file uploads
+//         let images = [];
+//         if (req.files && req.files.length > 0) {
+//             images = req.files.map(file => '/uploads/' + file.filename);
+//         } else {
+//             images = ['/images/default-event.jpg']; // Default image
+//         }
 
-        const newEvent = {
-            id: Date.now(),
-            title,
-            category,
-            date,
-            description: description || "No description provided",
-            images,
-            mainImage: images[0],
-            featured: featured === 'on',
-            createdAt: new Date().toISOString()
-        };
+//         const newEvent = {
+//             id: Date.now(),
+//             title,
+//             category,
+//             date,
+//             description: description || "No description provided",
+//             images,
+//             mainImage: images[0],
+//             featured: featured === 'on',
+//             createdAt: new Date().toISOString()
+//         };
 
-        // Read and update events
-        const events = await readEventsData();
-        events.push(newEvent);
-        await saveEventsData(events);
+//         // Read and update events
+//         const events = await readEventsData();
+//         events.push(newEvent);
+//         await saveEventsData(events);
 
-        req.session.success = `Event added with ${images.length} images!`;
-        return res.redirect('/admin/dashboard');
+//         req.session.success = `Event added with ${images.length} images!`;
+//         return res.redirect('/admin/dashboard');
 
-    } catch (err) {
-        console.error('Error adding event:', err);
+//     } catch (err) {
+//         console.error('Error adding event:', err);
 
-        // Cleanup uploaded files if error occurred
-        if (req.files?.length) {
-            req.files.forEach(file => {
-                fs.unlinkSync(path.join(uploadDir, file.filename));
-            });
-        }
+//         // Cleanup uploaded files if error occurred
+//         if (req.files?.length) {
+//             req.files.forEach(file => {
+//                 fs.unlinkSync(path.join(uploadDir, file.filename));
+//             });
+//         }
 
-        req.session.error = 'Failed to add event: ' + err.message;
-        return res.redirect('/admin/events/new');
-    }
-});
+//         req.session.error = 'Failed to add event: ' + err.message;
+//         return res.redirect('/admin/events/new');
+//     }
+// });
 
 
 // Edit Event Routes
@@ -222,19 +248,7 @@ router.post('/events/update/:id', isAuthenticated, upload.single('eventImage'), 
 });
 
 // Helper function to delete image files
-const deleteImageFile = (imagePath) => {
-    if (!imagePath) return;
-    
-    try {
-        const fullPath = path.join(__dirname, '..', imagePath);
-        if (fs.existsSync(fullPath)) {
-            fs.unlinkSync(fullPath);
-            console.log('Deleted image file:', fullPath);
-        }
-    } catch (err) {
-        console.error('Error deleting image file:', err);
-    }
-};
+
 // For deleting images during edit/delete operations
 const deleteEventImage = (imageUrl) => {
     if (!imageUrl) return;
@@ -299,4 +313,9 @@ router.get('/logout', (req, res) => {
         res.redirect('/admin/login');
     });
 });
-module.exports = router;
+module.exports = router,
+multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});

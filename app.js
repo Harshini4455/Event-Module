@@ -46,15 +46,10 @@ if (!process.env.ADMIN_PASSWORD_HASH.startsWith('$2a$')) {
     console.error('ERROR: ADMIN_PASSWORD_HASH must be a valid bcrypt hash');
     process.exit(1);
 }
-
+app.use('/test', require('./routes/test'));
+// console.log('Before route registration - adminRoutes:', require('./routes/admin'));
 // Routes
-const eventRoutes = require('./routes/events');
-const adminRoutes = require('./routes/admin');
 
-app.use('/', eventRoutes);
-app.use('/admin', adminRoutes);
-const adminEventRoutes = require('./routes/admin/events');
-app.use('/admin/events', adminEventRoutes);
 // Error handling
 app.use((req, res, next) => {
     res.status(404).render('pages/404', { title: 'Page Not Found' });
@@ -110,6 +105,21 @@ requiredVars.forEach(varName => {
   }
 });
 
+app.get('/admin/test', (req, res) => {
+    res.send('Server is working!');
+  });
+
+const eventRoutes = require('./routes/events');
+const adminRoutes = require('./routes/admin');
+app.use('/', eventRoutes);
+app.use('/admin', adminRoutes);
+const adminEventRoutes = require('./routes/admin/events');
+app.use('/admin/events', adminEventRoutes);
+console.log('Routes registered');
+
+
+
+
 console.log('✅ Environment variables loaded successfully');
 
 console.log('Expected:', process.env.ADMIN_USERNAME, process.env.ADMIN_PASSWORD);
@@ -124,7 +134,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   .catch(err => console.error('MongoDB connection error:', err));
   
   // Add event routes
-  app.use('/api/events', require('./routes/eventRoutes'));
+//   app.use('/api/events', require('./routes/eventRoutes'));
   
 // Database connection
 connectDB();
