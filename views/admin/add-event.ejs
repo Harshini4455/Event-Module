@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <%- include('../partials/head', { title }) %>
+    <%- include('../partials/head') %>
     <style>
         .admin-form-container {
             padding: 80px 0;
@@ -92,50 +92,42 @@
             <div class="admin-form">
                 <h1>Add New Event</h1>
                 
-                <form action="/admin/events" method="POST" enctype="multipart/form-data">
+                <form action="/admin/events/add" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="title">Event Title</label>
-                        <input type="text" id="title" name="title" required>
+                        <label for="name">Event Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
                     </div>
-                    
                     <div class="form-group">
-                        <label for="category">Category</label>
-                        <select id="category" name="category" required>
+                        <label for="category">Category*</label>
+                        <select class="form-control" id="category" name="category" required>
                             <option value="">Select a category</option>
-                            <option value="Technical">Technical</option>
-                            <option value="Cultural">Cultural</option>
-                            <option value="Sports">Sports</option>
+                            <option value="technical">Technical</option>
+                            <option value="cultural">Cultural</option>
+                            <option value="sports">Sports</option>
                             <option value="Workshop">Workshop</option>
                         </select>
                     </div>
-                    
                     <div class="form-group">
                         <label for="date">Event Date</label>
-                        <input type="date" id="date" name="date" required>
+                        <input type="date" class="form-control" id="date" name="date" required>
                     </div>
-                    
                     <div class="form-group">
-                        <label for="description">Event Description</label>
-                        <textarea id="description" name="description" required></textarea>
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" required></textarea>
                     </div>
-                    
                     <div class="form-group">
-                        <label for="eventImage">Event Image</label>
-                        <input type="file" id="eventImage" name="eventImage" multiple accept="image/*">
-                        <div class="image-preview" id="imagePreview">
-                            <img id="previewImage" src="#" alt="Preview">
-                        </div>
+                        <label for="location">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
                     </div>
-                    
-                    <div class="form-group checkbox-group">
-                        <input type="checkbox" id="featured" name="featured">
-                        <label for="featured">Featured Event</label>
+                    <div class="form-group">
+                        <label for="images">Images</label>
+                        <input type="file" class="form-control-file" id="images" name="images" multiple>
                     </div>
-                    
-                    <div class="form-actions">
-                        <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Add Event</button>
+                    <div class="form-group">
+                        <label for="videos">Videos</label>
+                        <input type="file" class="form-control-file" id="videos" name="videos" multiple>
                     </div>
+                    <button type="submit" class="btn btn-primary">Add Event</button>
                 </form>
             </div>
         </div>

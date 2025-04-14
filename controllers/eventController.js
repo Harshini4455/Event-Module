@@ -1,8 +1,9 @@
 const Event = require('../models/Event');
 const fs = require('fs');
 const path = require('path');
+const { cloudinary } = require('../cloudinary'); 
 
-let createEvent = async (req, res) => {
+exports.createEvent = async (req, res) => {
   try {
     const { title, description, date, location, category } = req.body;
     
@@ -12,8 +13,7 @@ let createEvent = async (req, res) => {
       date,
       location,
       category,
-      createdBy: req.user._id,
-      status: 'published'
+      createdBy: req.user._id
     });
 
     await event.save();
@@ -31,137 +31,7 @@ let createEvent = async (req, res) => {
   }
 };
 
-const  addEventMedia = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      // Clean up uploaded files if event doesn't exist
-      req.files.forEach(file => fs.unlinkSync(file.path));
-      throw new Error('Event not found');
-    }
-
-    const mediaFiles = req.files.map(file => ({
-      url: `/uploads/events/${file.filename}`,
-      type: file.mimetype.startsWith('image') ? 'image' : 'video'
-    }));
-
-    event.media.push(...mediaFiles);
-    await event.save();
-
-    req.flash('success', 'Media added successfully');
-    res.redirect(`/admin/events/${event._id}/media`);
-  } catch (err) {
-    console.error(err);
-    // Clean up files on error
-    if (req.files) {
-      req.files.forEach(file => fs.unlinkSync(file.path));
-    }
-    req.flash('error', 'Failed to add media');
-    res.redirect(`/admin/events/${req.params.id}/media`);
-  }
-};
-
-const renderEventForm = (req, res) => {
-  res.render('admin/events/new', { 
-    title: 'Create New Event',
-    event: null,
-    messages: req.flash()
-  });
-};
-
-const renderMediaManager = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    res.render('admin/events/media', {
-      title: 'Manage Event Media',
-      event,
-      messages: req.flash()
-    });
-  } catch (err) {
-    console.error(err);
-    req.flash('error', 'Event not found');
-    res.redirect('/admin/events');
-  }
-};
-
-let showMediaManager = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      req.flash('error', 'Event not found');
-      return res.redirect('/admin/events');
-    }
-    res.render('admin/events/media', { event });
-  } catch (err) {
-    console.error(err);
-    req.flash('error', 'Failed to load media manager');
-    res.redirect('/admin/events');
-  }
-};
-
-const uploadMedia = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      // Cleanup uploaded files if event doesn't exist
-      req.files.forEach(file => fs.unlinkSync(file.path));
-      throw new Error('Event not found');
-    }
-
-    const mediaFiles = req.files.map(file => ({
-      url: `/uploads/events/${file.filename}`,
-      type: file.mimetype.startsWith('image') ? 'image' : 'video'
-    }));
-
-    event.media.push(...mediaFiles);
-    await event.save();
-
-    req.flash('success', 'Media uploaded successfully');
-    res.redirect(`/admin/events/${event._id}/media`);
-  } catch (err) {
-    console.error(err);
-    // Cleanup on error
-    if (req.files) {
-      req.files.forEach(file => fs.unlinkSync(file.path));
-    }
-    req.flash('error', 'Failed to upload media');
-    res.redirect(`/admin/events/${req.params.id}/media`);
-  }
-};
-
-const deleteMedia = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event) {
-      return res.status(404).json({ success: false, message: 'Event not found' });
-    }
-
-    const mediaIndex = event.media.findIndex(
-      media => media._id.toString() === req.params.mediaId
-    );
-
-    if (mediaIndex === -1) {
-      return res.status(404).json({ success: false, message: 'Media not found' });
-    }
-
-    // Delete file from server
-    const filePath = path.join(__dirname, '../../public', event.media[mediaIndex].url);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
-    // Remove from array
-    event.media.splice(mediaIndex, 1);
-    await event.save();
-
-    res.json({ success: true, message: 'Media deleted successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Failed to delete media' });
-  }
-};
-
-const getAllEvents = async (req, res) => {
+exports.getAllEvents = async (req, res) => {
   try {
     const events = await Event.find({ isActive: true })
       .populate('createdBy', 'username email')
@@ -181,7 +51,7 @@ const getAllEvents = async (req, res) => {
   }
 };
 
-const getEventById = async (req, res) => {
+exports.getEventById = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id)
       .populate('createdBy', 'username email');
@@ -206,7 +76,7 @@ const getEventById = async (req, res) => {
   }
 };
 
-const updateEvent = async (req, res) => {
+exports.updateEvent = async (req, res) => {
   try {
     const { title, description, date, location, category } = req.body;
     
@@ -237,7 +107,7 @@ const updateEvent = async (req, res) => {
   }
 };
 
-const deleteEvent = async (req, res) => {
+exports.deleteEvent = async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(
       req.params.id,
@@ -265,7 +135,7 @@ const deleteEvent = async (req, res) => {
   }
 };
 
-const uploadEventMedia = async (req, res) => {
+exports.uploadEventMedia = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
@@ -303,54 +173,146 @@ const uploadEventMedia = async (req, res) => {
   }
 };
 
-console.log(module)
-
-
-let listEvents = async (req, res) => {
+exports.getEvents = async (req, res) => {
   try {
-    const events = await Event.find().sort({ createdAt: -1 });
-    res.render('admin/events/list', { events });
+      const events = await Event.find({});
+      res.render('admin/events', { events });
   } catch (err) {
-    console.error(err);
-    req.flash('error', 'Failed to load events');
-    res.redirect('/admin');
-  }
-}
-
-let showCreateForm = (req, res) => {
-  try {
-    // Render the event creation form view
-    res.render('events/create', {
-      title: 'Create New Event',
-      // Pass any necessary data to the view
-      categories: ['Technical', 'Cultural', 'Workshop', 'Sports'], // Example categories
-      user: req.user, // If you need user data in the form
-      messages: {
-        error: req.flash('error'),
-        success: req.flash('success')
-      }
-    });
-  } catch (err) {
-    console.error('Error rendering event creation form:', err);
-    req.flash('error', 'Failed to load event creation form');
-    res.redirect('/events');
+      console.error(err);
+      res.redirect('/admin/dashboard');
   }
 };
-  
 
-module.exports ={
-  createEvent,
-  addEventMedia,
-  renderEventForm,
-  renderMediaManager,
-  getAllEvents,
-  getEventById,
-  updateEvent,
-  deleteEvent,
-  uploadEventMedia,
-  showMediaManager,
-  uploadMedia,
-  deleteMedia,
-  listEvents,
-  showCreateForm
-}
+exports.getAddEvent = (req, res) => {
+  res.render('admin/add-event');
+};
+
+exports.postAddEvent = async (req, res) => {
+  try {
+      // Validate required fields
+      const { name, date, description, location, category } = req.body;
+      if (!name || !date || !description || !location|| !category) {
+          req.flash('error', 'All fields are required');
+          return res.redirect(req.get('Referrer') || '/admin/events/add');
+      }
+
+      // Create event with creator
+      const event = new Event({
+          name,
+          date: new Date(date),
+          description,
+          location,
+          category,
+          createdBy: req.user?._id || null, // Handle both authenticated and unauthenticated cases
+          images: [],
+          videos: []
+      });
+
+      // Process uploads
+      if (req.files?.images) {
+          event.images = req.files.images.map(f => ({
+              path: f.path,
+              filename: f.filename
+          }));
+      }
+
+      await event.save();
+      req.flash('success', 'Event created successfully');
+      return res.redirect('/admin/events');
+
+  } catch (err) {
+      console.error('Error:', err);
+      req.flash('error', 'Failed to create event: ' + err.message);
+      return res.redirect(req.get('Referrer') || '/admin/events/add');
+  }
+};
+
+exports.getEditEvent = async (req, res) => {
+  try {
+      const event = await Event.findById(req.params.id);
+      res.render('admin/edit-event', { event });
+  } catch (err) {
+      console.error(err);
+      res.redirect('/admin/events');
+  }
+};
+
+exports.postEditEvent = async (req, res) => {
+  try {
+      const { name, date, description, location } = req.body;
+      const event = await Event.findById(req.params.id);
+      
+      event.name = name;
+      event.date = date;
+      event.description = description;
+      event.location = location;
+
+      // Handle new image uploads
+      if (req.files.images) {
+          event.images.push(...req.files.images.map(f => ({
+              path: f.path,
+              filename: f.filename
+          })));
+      }
+
+      // Handle new video uploads
+      if (req.files.videos) {
+          event.videos.push(...req.files.videos.map(f => ({
+              path: f.path,
+              filename: f.filename
+          })));
+      }
+
+      await event.save();
+      res.redirect('/admin/events');
+  } catch (err) {
+      console.error(err);
+      res.redirect(`/admin/events/edit/${req.params.id}`);
+  }
+};
+
+exports.deleteEvents = async (req, res) => {
+  try {
+      await Event.findByIdAndDelete(req.params.id);
+      res.redirect('/admin/events');
+  } catch (err) {
+      console.error(err);
+      res.redirect('/admin/events');
+  }
+};
+
+exports.deleteImage = async (req, res) => {
+  try {
+      const { id, imageId } = req.params;
+      const event = await Event.findById(id);
+      
+      // Remove image from Cloudinary and array
+      const image = event.images.id(imageId);
+      await cloudinary.uploader.destroy(image.filename);
+      event.images.pull(imageId);
+      
+      await event.save();
+      res.redirect(`/admin/events/edit/${id}`);
+  } catch (err) {
+      console.error(err);
+      res.redirect('/admin/events');
+  }
+};
+
+exports.deleteVideo = async (req, res) => {
+  try {
+      const { id, videoId } = req.params;
+      const event = await Event.findById(id);
+      
+      // Remove video from Cloudinary and array
+      const video = event.videos.id(videoId);
+      await cloudinary.uploader.destroy(video.filename);
+      event.videos.pull(videoId);
+      
+      await event.save();
+      res.redirect(`/admin/events/edit/${id}`);
+  } catch (err) {
+      console.error(err);
+      res.redirect('/admin/events');
+  }
+};

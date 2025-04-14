@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const eventController = require('../controllers/eventController');
+
 // Sample event data - in a real app, this would come from a database
 let events = [
     {
@@ -19,24 +19,22 @@ let events = [
     // Add more sample events...
 ];
 
-// Public routes
-router.get('/', eventController.getAllEvents);
-router.get('/:id', eventController.getEventById);
-// router.get('/', (req, res) => {
-//     try {
-//       const eventsPath = path.join(__dirname, '../data/events.json');
-//       const events = JSON.parse(fs.readFileSync(eventsPath));
+
+router.get('/', (req, res) => {
+    try {
+      const eventsPath = path.join(__dirname, '../data/events.json');
+      const events = JSON.parse(fs.readFileSync(eventsPath));
       
-//       res.render('pages/index', {
-//         title: 'College Event Gallery',
-//         events,
-//         featuredEvents: events.filter(event => event.featured)
-//       });
-//     } catch (err) {
-//       console.error('Error reading events:', err);
-//       res.status(500).render('pages/500', { title: 'Server Error' });
-//     }
-//   });
+      res.render('pages/index', {
+        title: 'College Event Gallery',
+        events,
+        featuredEvents: events.filter(event => event.featured)
+      });
+    } catch (err) {
+      console.error('Error reading events:', err);
+      res.status(500).render('pages/500', { title: 'Server Error' });
+    }
+  });
 
   router.get('/events', (req, res) => {
     try {

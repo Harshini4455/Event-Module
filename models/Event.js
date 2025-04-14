@@ -9,17 +9,24 @@ const mediaSchema = new mongoose.Schema({
 });
 
 const eventSchema = new mongoose.Schema({
-  title: { type: String, required: true },
+  title: { type: String,default: "Untitled Event", required: true },
   description: { type: String, required: true },
   date: { type: Date, required: true },
   location: { type: String, required: true },
   category: { type: String, enum: ['technical', 'cultural', 'sports', 'workshop'], required: true },
-  media: [mediaSchema],
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  // media: [mediaSchema],
+  images: [{
+    path: String,
+    filename: String
+}],
+videos: [{
+    path: String,
+    filename: String
+}],
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  isActive: { type: Boolean, default: true },
-  status: { type: String, enum: ['draft', 'published'], default: 'draft' }
+  isActive: { type: Boolean, default: true }
 });
 
 // Update the updatedAt field before saving

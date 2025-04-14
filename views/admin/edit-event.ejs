@@ -92,55 +92,56 @@
                 <div class="admin-form">
                     <h1>Edit Event</h1>
 
-                    <form action="/admin/events/update/<%= event.id %>" method="POST" enctype="multipart/form-data">
+                    <form action="/admin/events/edit/<%= event._id %>" method="POST" enctype="multipart/form-data">
                         <div class="form-group">
-                            <label for="title">Event Title</label>
-                            <input type="text" id="title" name="title" value="<%= event.title %>" required>
+                            <label for="name">Event Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="<%= event.name %>" required>
                         </div>
-
-                        <div class="form-group">
-                            <label for="category">Category</label>
-                            <select id="category" name="category" required>
-                                <option value="Technical" <%=event.category==='Technical' ? 'selected' : '' %>>Technical
-                                </option>
-                                <option value="Cultural" <%=event.category==='Cultural' ? 'selected' : '' %>>Cultural
-                                </option>
-                                <option value="Sports" <%=event.category==='Sports' ? 'selected' : '' %>>Sports</option>
-                                <option value="Workshop" <%=event.category==='Workshop' ? 'selected' : '' %>>Workshop
-                                </option>
-                            </select>
-                        </div>
-
                         <div class="form-group">
                             <label for="date">Event Date</label>
-                            <input type="date" id="date" name="date" value="<%= event.date %>" required>
+                            <input type="datetime-local" class="form-control" id="date" name="date" 
+                                   value="<%= event.date.toISOString().slice(0,16) %>" required>
                         </div>
-
                         <div class="form-group">
-                            <label for="description">Event Description</label>
-                            <textarea id="description" name="description" required><%= event.description %></textarea>
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required><%= event.description %></textarea>
                         </div>
-
                         <div class="form-group">
-                            <label>Current Image</label>
-
-
-                            <div class="current-image">
-                                <img src="<%= event.image %>" alt="Current event image">
+                            <label for="location">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" value="<%= event.location %>" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Images</label>
+                            <div class="row">
+                                <% event.images.forEach(image => { %>
+                                <div class="col-md-3 mb-3">
+                                    <img src="<%= image.path %>" class="img-thumbnail">
+                                    <a href="/admin/events/<%= event._id %>/images/<%= image._id %>/delete" class="btn btn-danger btn-sm btn-block mt-2">Delete</a>
+                                </div>
+                                <% }); %>
                             </div>
-                            <label for="eventImage">Update Image (optional)</label>
-                            <input type="file" id="eventImage" name="eventImage" accept="image/*">
+                            <label for="images">Add More Images</label>
+                            <input type="file" class="form-control-file" id="images" name="images" multiple accept="image/*">
                         </div>
-
-                        <div class="form-group checkbox-group">
-                            <input type="checkbox" id="featured" name="featured" <%=event.featured ? 'checked' : '' %>>
-                            <label for="featured">Featured Event</label>
+                        
+                        <div class="form-group">
+                            <label>Current Videos</label>
+                            <div class="row">
+                                <% event.videos.forEach(video => { %>
+                                <div class="col-md-3 mb-3">
+                                    <video controls class="img-thumbnail" style="width:100%">
+                                        <source src="<%= video.path %>" type="video/mp4">
+                                    </video>
+                                    <a href="/admin/events/<%= event._id %>/videos/<%= video._id %>/delete" class="btn btn-danger btn-sm btn-block mt-2">Delete</a>
+                                </div>
+                                <% }); %>
+                            </div>
+                            <label for="videos">Add More Videos</label>
+                            <input type="file" class="form-control-file" id="videos" name="videos" multiple accept="video/*">
                         </div>
-
-                        <div class="form-actions">
-                            <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Update Event</button>
-                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Update Event</button>
                     </form>
                 </div>
             </div>

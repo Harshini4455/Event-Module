@@ -46,9 +46,12 @@ if (!process.env.ADMIN_PASSWORD_HASH.startsWith('$2a$')) {
     console.error('ERROR: ADMIN_PASSWORD_HASH must be a valid bcrypt hash');
     process.exit(1);
 }
-app.use('/test', require('./routes/test'));
-// console.log('Before route registration - adminRoutes:', require('./routes/admin'));
+
 // Routes
+const eventRoutes = require('./routes/events');
+const adminRoutes = require('./routes/admin');
+app.use('/', eventRoutes);
+app.use('/admin', adminRoutes);
 
 // Error handling
 app.use((req, res, next) => {
@@ -95,7 +98,19 @@ process.on('unhandledRejection', (reason, promise) => {
 console.log('Admin username:', process.env.ADMIN_USERNAME);
 console.log('Admin username:', process.env.ADMIN_USERNAME);
 // console.log('Password hash exists:', !!process.env.ADMIN_PASSWORD_HASH);
-
+// Add this after your routes
+app.use((err, req, res, next) => {
+    if (err.message.includes('api_key')) {
+      console.error('Cloudinary configuration error:');
+      console.error('- Verify .env file exists');
+      console.error('- Check CLOUDINARY_* variables are set');
+      console.error('- Confirm dotenv is configured');
+      return res.status(500).send('Server configuration error');
+    }
+    // Handle other errors
+    next(err);
+  });
+  
 const requiredVars = ['ADMIN_USERNAME', 'ADMIN_PASSWORD', 'SESSION_SECRET'];
 requiredVars.forEach(varName => {
   if (!process.env[varName]) {
@@ -104,21 +119,6 @@ requiredVars.forEach(varName => {
     process.exit(1);
   }
 });
-
-app.get('/admin/test', (req, res) => {
-    res.send('Server is working!');
-  });
-
-const eventRoutes = require('./routes/events');
-const adminRoutes = require('./routes/admin');
-app.use('/', eventRoutes);
-app.use('/admin', adminRoutes);
-const adminEventRoutes = require('./routes/admin/events');
-app.use('/admin/events', adminEventRoutes);
-console.log('Routes registered');
-
-
-
 
 console.log('✅ Environment variables loaded successfully');
 
@@ -134,7 +134,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   .catch(err => console.error('MongoDB connection error:', err));
   
   // Add event routes
-//   app.use('/api/events', require('./routes/eventRoutes'));
+  app.use('/api/events', require('./routes/eventRoutes'));
   
 // Database connection
 connectDB();

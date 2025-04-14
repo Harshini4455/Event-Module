@@ -3,19 +3,13 @@ const User = require('../models/User');
 const fs = require('fs');
 const path = require('path');
 
-const getAdminDashboard = async (req, res) => {
+exports.getAdminDashboard = async (req, res) => {
   try {
     const events = await Event.find().populate('createdBy', 'username');
-    res.render('admin/dashboard', { 
-      events, 
-      user: req.user,
-      success_msg: req.flash('success_msg'),
-      error_msg: req.flash('error_msg')
-    });
+    res.render('admin/dashboard', { events, user: req.user });
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', 'Error loading dashboard');
-    res.redirect('/');
+    res.status(500).render('error', { message: 'Server Error' });
   }
 };
 
@@ -183,8 +177,4 @@ exports.getAllEvents = async (req, res) => {
       console.error(err);
       res.status(500).render('error', { message: 'Server Error' });
     }
-  };
-
-  module.exports = {
-    getAdminDashboard
   };
